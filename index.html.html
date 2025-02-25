@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip Vocab Cards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: yellow;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px;
+        }
+        .category {
+            width: 100%;
+            text-align: left;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: yellow;
+            border-bottom: 2px solid yellow;
+            padding-bottom: 5px;
+        }
+        .card {
+            width: 200px;
+            height: 100px;
+            perspective: 1000px;
+        }
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid yellow;
+            border-radius: 10px;
+            background: black;
+            color: yellow;
+            box-shadow: 2px 2px 10px rgba(255, 255, 0, 0.5);
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background: yellow;
+            color: black;
+        }
+        .flip-button {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: yellow;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Flip Vocab Cards</h1>
+    <button class="flip-button" onclick="flipAll()">Flip All</button>
+    <div id="cardContainer"></div>
+    
+    <script>
+        const vocab = {
+  "Klima og miljø": {
+    "Klimaendringer": "Climate change",
+    "Global oppvarming": "Global warming",
+    "Fornybar energi": "Renewable energy",
+    "Klimagassutslipp": "Greenhouse gas emissions",
+    "Bærekraft": "Sustainability",
+    "Økosystem": "Ecosystem",
+    "Avskoging": "Deforestation",
+    "Gjenvinning": "Recycling",
+    "Karbonavtrykk": "Carbon footprint",
+    "Naturkatastrofe": "Natural disaster",
+    "Grønn energi": "Green energy",
+    "Energikilde": "Energy source",
+    "Miljøvennlig": "Eco-friendly",
+    "Biodiversitet": "Biodiversity",
+    "Klimaavtale": "Climate agreement"
+  },
+  "Forurensning": {
+    "Luftforurensning": "Air pollution",
+    "Vannforurensning": "Water pollution",
+    "Plastforurensning": "Plastic pollution",
+    "Kjemikalier": "Chemicals",
+    "Oljeforurensning": "Oil pollution",
+    "Forbrenning": "Combustion",
+    "Toksiner": "Toxins",
+    "Sur nedbør": "Acid rain",
+    "Industriavfall": "Industrial waste",
+    "Radioaktiv forurensning": "Radioactive pollution",
+    "Støyforurensning": "Noise pollution",
+    "Mikroplast": "Microplastics",
+    "Avfallshåndtering": "Waste management",
+    "Bærekraftig utvikling": "Sustainable development",
+    "Miljøvern": "Environmental protection"
+  },
+  "Innvandring": {
+    "Asylsøker": "Asylum seeker",
+    "Flyktning": "Refugee",
+    "Integrering": "Integration",
+    "Statsborgerskap": "Citizenship",
+    "Migrasjon": "Migration",
+    "Utlendingsdirektoratet": "Immigration Directorate",
+    "Oppholdstillatelse": "Residence permit",
+    "Visum": "Visa",
+    "Midlertidig opphold": "Temporary residence",
+    "Fast opphold": "Permanent residence",
+    "Familiegjenforening": "Family reunification",
+    "Språkopplæring": "Language learning",
+    "Arbeidsinnvandring": "Labor migration",
+    "Kulturforskjeller": "Cultural differences",
+    "Diskriminering": "Discrimination"
+  },
+  "Skole og utdanning": {
+    "Utdanningssystem": "Education system",
+    "Eksamen": "Exam",
+    "Lærer": "Teacher",
+    "Læremidler": "Learning materials",
+    "Videregående skole": "High school",
+    "Universitet": "University",
+    "Studielån": "Student loan",
+    "Karakterer": "Grades",
+    "Lærling": "Apprentice",
+    "Studiekompetanse": "Study qualification",
+    "Skolepolitikk": "School policy",
+    "Privatskole": "Private school",
+    "Offentlig skole": "Public school",
+    "Digital undervisning": "Digital teaching",
+    "Fjernundervisning": "Remote learning"
+  },
+  "Helse og livsstil": {
+    "Folkehelse": "Public health",
+    "Trening": "Exercise",
+    "Kosthold": "Diet",
+    "Mental helse": "Mental health",
+    "Stressmestring": "Stress management",
+    "Helsevesen": "Healthcare system",
+    "Sykefravær": "Sick leave",
+    "Sykeforsikring": "Health insurance",
+    "Forebygging": "Prevention",
+    "Smittsomme sykdommer": "Infectious diseases",
+    "Alternativ medisin": "Alternative medicine",
+    "Legemidler": "Medicines",
+    "Fastlege": "General practitioner",
+    "Fysisk aktivitet": "Physical activity",
+    "Sunn livsstil": "Healthy lifestyle"
+  },
+  "Arbeid og økonomi": {
+    "Jobbsøknad": "Job application",
+    "Intervju": "Interview",
+    "Arbeidskontrakt": "Employment contract",
+    "Lønn": "Salary",
+    "Pensjon": "Pension",
+    "Arbeidsledighet": "Unemployment",
+    "Trygd": "Welfare",
+    "Deltidsjobb": "Part-time job",
+    "Fulltidsjobb": "Full-time job",
+    "Fagforening": "Trade union",
+    "Bedrift": "Company",
+    "Entreprenørskap": "Entrepreneurship",
+    "Arbeidsmiljø": "Work environment",
+    "Skatt": "Tax",
+    "Økonomisk støtte": "Financial aid"
+  },
+  "Samfunn og politikk": {
+    "Demokrati": "Democracy",
+    "Valg": "Election",
+    "Statsminister": "Prime Minister",
+    "Opposisjon": "Opposition",
+    "Ytringsfrihet": "Freedom of speech",
+    "Stemmerett": "Voting rights",
+    "Parlament": "Parliament",
+    "Grunnlov": "Constitution",
+    "Lovgivning": "Legislation",
+    "Menneskerettigheter": "Human rights",
+    "Politiske partier": "Political parties",
+    "Samfunnsutvikling": "Social development",
+    "Folkestyre": "People’s rule",
+    "Sosial velferd": "Social welfare",
+    "Byråkrati": "Bureaucracy"
+  },
+  "Teknologi og digitalisering": {
+    "Kunstig intelligens": "Artificial intelligence",
+    "Digital transformasjon": "Digital transformation",
+    "Personvern": "Privacy",
+    "Datasikkerhet": "Data security",
+    "Automatisering": "Automation",
+    "Smart teknologi": "Smart technology",
+    "Internett": "Internet",
+    "Skylagring": "Cloud storage",
+    "Programvareutvikling": "Software development",
+    "Blokkjede": "Blockchain",
+    "Virtuell virkelighet": "Virtual reality",
+    "5G teknologi": "5G technology",
+    "Big data": "Big data",
+    "Digitale verktøy": "Digital tools",
+    "Nettsamfunn": "Online communities"
+  }
+}
+;
+
+        const container = document.getElementById("cardContainer");
+        
+        Object.keys(vocab).forEach(category => {
+            const categoryHeader = document.createElement("div");
+            categoryHeader.classList.add("category");
+            categoryHeader.textContent = category;
+            container.appendChild(categoryHeader);
+            
+            const categoryContainer = document.createElement("div");
+            categoryContainer.classList.add("container");
+            container.appendChild(categoryContainer);
+            
+            Object.entries(vocab[category]).forEach(([word, meaning]) => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">${word}</div>
+                        <div class="card-back">${meaning}</div>
+                    </div>
+                `;
+                card.addEventListener("click", () => {
+                    card.classList.toggle("flipped");
+                });
+                categoryContainer.appendChild(card);
+            });
+        });
+        
+        function flipAll() {
+            document.querySelectorAll(".card").forEach(card => {
+                card.classList.toggle("flipped");
+            });
+        }
+    </script>
+</body>
+</html>
